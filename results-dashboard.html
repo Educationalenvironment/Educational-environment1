@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>نتائج الأنشطة | TechZone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #eef2f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #0099cc;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+   main {
+  padding: 20px;
+  overflow-x: auto; /* ✅ إضافة scroll أفقي إذا احتاج */
+}
+
+table {
+  width: 100%;
+  min-width: 600px; /* ✅ يسمح بالتمرير في الشاشات الصغيرة */
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@media (max-width: 600px) {
+  header {
+    font-size: 1.2rem;
+    padding: 10px;
+  }
+
+  th, td {
+    font-size: 0.85rem;
+    padding: 8px 6px;
+  }
+
+  img.icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f5f5f5;
+      color: #333;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    img.icon {
+      width: 30px;
+      height: 30px;
+    }
+
+    .no-results {
+      text-align: center;
+      color: #777;
+      margin-top: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    نتائج الأنشطة التفاعلية
+  </header>
+
+  <main>
+    <table id="results-table">
+      <thead>
+        <tr>
+          <th>الاسم</th>
+          <th>البريد</th>
+          <th>الدرس</th>
+          <th>النتيجة</th>
+          <th>شارة</th>
+          <th>الترتيب</th>
+        </tr>
+      </thead>
+      <tbody id="results-body">
+        <!-- النتائج ستظهر هنا -->
+      </tbody>
+    </table>
+
+    <p class="no-results" id="no-results" style="display:none;">
+      لا توجد نتائج مسجلة حاليًا.
+    </p>
+  </main>
+
+  <script>
+    const supabaseUrl = 'https://duxdtpkxomkjoxnlzjgw.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eGR0cGt4b21ram94bmx6amd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MTYyMzIsImV4cCI6MjA2NzQ5MjIzMn0._MOyOhSQvvKrmEwAJGvibp79JXM9MlTJyEVnpvuTJL0';
+
+    const { createClient } = supabase;
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+    async function fetchResults() {
+      const { data, error } = await supabaseClient
+        .from('activities_results')
+        .select('*')
+        .order('score', { ascending: false });
+
+      const resultsBody = document.getElementById('results-body');
+      const noResultsMsg = document.getElementById('no-results');
+
+      if (error) {
+        console.error('حدث خطأ:', error.message);
+        resultsBody.innerHTML = '<tr><td colspan="6">⚠️ خطأ في تحميل النتائج</td></tr>';
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        noResultsMsg.style.display = 'block';
+        return;
+      }
+
+      data.forEach(result => {
+        const row = document.createElement('tr');
+
+        let badge = '';
+        if (result.trophy) {
+          badge = `<img src="${result.trophy}" alt="كأس" class="icon">`;
+        } else if (result.gold_check) {
+          badge = `<img src="${result.gold_check}" alt="صح ذهبي" class="icon">`;
+        } else if (result.check_mark) {
+          badge = `<img src="${result.check_mark}" alt="صح" class="icon">`;
+        } else {
+          badge = '-';
+        }
+
+        row.innerHTML = `
+          <td>${result.name}</td>
+          <td>${result.email}</td>
+          <td>${result.lesson}</td>
+          <td>${result.score}</td>
+          <td>${badge}</td>
+          <td>${result.rank ?? '-'}</td>
+        `;
+
+        resultsBody.appendChild(row);
+      });
+    }
+
+    fetchResults();
+  </script>
+</body>
+</html>

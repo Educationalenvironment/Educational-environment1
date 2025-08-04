@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>لوحة التحكم | TechZone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+  font-family: 'Cairo', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f0f4f8;
+}
+
+header {
+  background: #0077cc;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+main {
+  padding: 20px;
+  overflow-x: auto; /* ✅ يسمح بالتمرير الأفقي للجداول على الموبايل */
+}
+
+table {
+  width: 100%;
+  min-width: 600px; /* ✅ يمنع تكدس الأعمدة على الشاشات الصغيرة */
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  animation: fadeIn 1s ease-in-out;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.no-users {
+  text-align: center;
+  color: #888;
+  margin-top: 30px;
+}
+
+/* ✅ تحسينات لشاشات الجوال */
+@media (max-width: 600px) {
+  header {
+    font-size: 1.2rem;
+    padding: 10px;
+  }
+
+  th, td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+
+  table {
+    min-width: 100%;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <header>
+    لوحة تحكم المستخدمين
+  </header>
+
+  <main>
+    <table id="users-table">
+      <thead>
+        <tr>
+          <th>الرقم</th>
+          <th>اسم المستخدم</th>
+          <th>البريد الإلكتروني</th>
+          <th>تاريخ التسجيل</th>
+        </tr>
+      </thead>
+      <tbody id="users-body">
+        <!-- سيتم إدخال المستخدمين هنا -->
+      </tbody>
+    </table>
+
+    <p class="no-users" id="no-users" style="display: none;">لا يوجد مستخدمون حتى الآن</p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+    const supabaseUrl = 'https://duxdtpkxomkjoxnlzjgw.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eGR0cGt4b21ram94bmx6amd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MTYyMzIsImV4cCI6MjA2NzQ5MjIzMn0._MOyOhSQvvKrmEwAJGvibp79JXM9MlTJyEVnpvuTJL0';
+  const { createClient } = supabase;
+  const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+  async function fetchUsers() {
+    const { data, error } = await supabaseClient
+      .from('users')
+      .select('*')
+      .order('id', { ascending: true });
+
+    const usersBody = document.getElementById('users-body');
+    const noUsersMsg = document.getElementById('no-users');
+
+    if (error) {
+      console.error('⚠️ Supabase Error:', error.message);
+      usersBody.innerHTML = '<tr><td colspan="4">❌ حدث خطأ أثناء تحميل البيانات</td></tr>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      noUsersMsg.style.display = "block";
+      return;
+    }
+
+    data.forEach((user, index) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${user.username}</td>
+        <td>${user.email}</td>
+        <td>${new Date(user.created_at).toLocaleDateString('ar-EG')}</td>
+      `;
+      usersBody.appendChild(row);
+    });
+  }
+
+  fetchUsers();
+</script>
+
+
+</body>
+</html>
