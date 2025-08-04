@@ -368,6 +368,8 @@ function startActivity() {
 
 
 // ✅ السحب والإفلات
+let isTimeUp = false; // ✅ متغير لتحديد إذا انتهى الوقت
+
 function startDragAndDrop() {
   const draggables = document.querySelectorAll('.draggable');
   const dropzones = document.querySelectorAll('.dropzone');
@@ -386,6 +388,8 @@ function startDragAndDrop() {
 
 // 🧩 الدوال المنفصلة:
 function dragStart(e) {
+  if (isTimeUp) return e.preventDefault(); // ✅ منع السحب إذا انتهى الوقت
+
   const el = e.target;
   e.dataTransfer.setData("text", el.getAttribute("data-category"));
   e.dataTransfer.setData("text/html", el.outerHTML);
@@ -397,16 +401,20 @@ function dragEnd(e) {
 }
 
 function preventDragOver(e) {
+  if (isTimeUp) return; // ✅ منع التفاعل
   e.preventDefault();
   e.currentTarget.style.background = "#eee";
 }
 
 function dragLeave(e) {
+  if (isTimeUp) return;
   e.currentTarget.style.background = "";
 }
 
 function handleDrop(e) {
+  if (isTimeUp) return; // ✅ منع الإسقاط
   e.preventDefault();
+
   const zone = e.currentTarget;
   zone.style.background = "";
 
@@ -426,33 +434,30 @@ function handleDrop(e) {
 }
 
 
-
 // ✅ المؤقت
-// ✅ تعريف countdown كمتحول عام يمكن الوصول له من أي مكان
-
-
 function startTimer() {
   let timeLeft = 20;
   const timerEl = document.getElementById("timer");
   const circleEl = document.getElementById("timer-circle");
-   
+
   timerEl.innerText = timeLeft;
 
   countdown = setInterval(() => {
     timeLeft--;
     timerEl.innerText = timeLeft;
 
-    // احسب اللون بناء على الوقت (من أخضر إلى أحمر تدريجياً)
     let hue = (timeLeft / 20) * 120;
     circleEl.style.backgroundColor = `hsl(${hue}, 80%, 50%)`;
 
     if (timeLeft === 0) {
       clearInterval(countdown);
-      disableDragAndDrop();
-      circleEl.style.backgroundColor = "hsl(0, 80%, 50%)"; // اللون أحمر
+      isTimeUp = true; // ✅ نوقف السحب والإفلات
+      document.getElementById("submit-button").style.display = "inline-block";
+      circleEl.style.backgroundColor = "hsl(0, 80%, 50%)";
     }
   }, 1000);
 }
+
 
 // ✅ التقييم عند الضغط على زر التسليم
 function submitAnswers() {
@@ -593,4 +598,5 @@ function showFeedback(type) {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
+
 
