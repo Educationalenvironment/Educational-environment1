@@ -318,12 +318,16 @@ function startActivity() {
 }
 
 // ✅ السحب والإفلات
+let isTimeUp = false; // ✅ متغير لتحديد انتهاء الوقت
+
 function startDragAndDrop() {
   const draggables = document.querySelectorAll('.draggable');
   const dropzones = document.querySelectorAll('.dropzone');
 
   draggables.forEach(el => {
     el.addEventListener('dragstart', e => {
+      if (isTimeUp) return e.preventDefault(); // ✅ منع السحب بعد انتهاء الوقت
+
       e.dataTransfer.setData("text", el.getAttribute("data-category"));
       e.dataTransfer.setData("text/html", el.outerHTML);
       setTimeout(() => el.style.display = "none", 0);
@@ -336,32 +340,33 @@ function startDragAndDrop() {
 
   dropzones.forEach(zone => {
     zone.addEventListener('dragover', e => {
+      if (isTimeUp) return; // ✅ منع السحب فوق المنطقة
       e.preventDefault();
       zone.style.background = "#eee";
     });
 
     zone.addEventListener('dragleave', e => {
+      if (isTimeUp) return;
       zone.style.background = "";
     });
 
     zone.addEventListener('drop', e => {
+      if (isTimeUp) return; // ✅ منع الإسقاط
       e.preventDefault();
       zone.style.background = "";
 
       const cat = e.dataTransfer.getData("text");
-      const expected = zone.getAttribute("data-accept"); // ✅ نتحقق من الفئة المتوقعة
+      const expected = zone.getAttribute("data-accept");
 
       const html = e.dataTransfer.getData("text/html");
       const div = document.createElement("div");
       div.innerHTML = html;
       div.firstChild.style.display = "block";
 
-      // حذف العنصر من القائمة
       document.querySelectorAll('.draggable').forEach(el => {
         if (el.innerText === div.firstChild.innerText) el.remove();
       });
 
-      // إضافته إلى منطقة الإسقاط
       zone.appendChild(div.firstChild);
     });
   });
@@ -380,15 +385,14 @@ function startTimer() {
     timeLeft--;
     timerEl.innerText = timeLeft;
 
-    // احسب اللون بناء على الوقت
-    // من أخضر (120) إلى أحمر (0) تدريجيًا
     let hue = (timeLeft / 20) * 120; 
     circleEl.style.backgroundColor = `hsl(${hue}, 80%, 50%)`;
 
     if (timeLeft === 0) {
       clearInterval(countdown);
+      isTimeUp = true; // ✅ الوقت انتهى، نوقف السحب والإفلات
       document.getElementById("submit-button").style.display = "inline-block";
-      circleEl.style.backgroundColor = "hsl(0, 80%, 50%)"; // تأكيد اللون أحمر
+      circleEl.style.backgroundColor = "hsl(0, 80%, 50%)";
     }
   }, 1000);
 }
@@ -535,4 +539,5 @@ function showFeedback(type) {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
+
 
