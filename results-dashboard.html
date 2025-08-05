@@ -8,36 +8,105 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
     body {
-      font-family: 'Cairo', sans-serif;
-      background: #eef2f5;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      background: #0099cc;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-size: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-   main {
-  padding: 20px;
-  overflow-x: auto; /* ✅ إضافة scroll أفقي إذا احتاج */
+  font-family: 'Cairo', sans-serif;
+  background: #eef2f5;
+  margin: 0;
+  padding: 0;
 }
 
+header {
+  background: #0099cc;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+main {
+  padding: 20px;
+  overflow-x: auto;
+}
+
+section {
+  margin-bottom: 40px;
+}
+
+section h2 {
+  text-align: right;
+  color: #333;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  padding-right: 10px;
+  border-right: 5px solid #0099cc;
+}
+
+/* تنسيق الجدول */
 table {
   width: 100%;
-  min-width: 600px; /* ✅ يسمح بالتمرير في الشاشات الصغيرة */
+  min-width: 600px;
   border-collapse: collapse;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  box-shadow: 0 0 8px rgba(0,0,0,0.08);
   animation: fadeIn 0.6s ease-in-out;
+  margin-bottom: 20px;
 }
 
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+th {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* تأثير عند المرور */
+tr:hover {
+  background-color: #f9f9f9;
+}
+
+img.icon {
+  width: 30px;
+  height: 30px;
+}
+
+/* لا توجد نتائج */
+.no-results {
+  text-align: center;
+  color: #777;
+  margin-top: 20px;
+}
+
+/* ✅ فاصل نهاية الدرس */
+tr.lesson-separator td {
+  background: #f1f8ff;
+  color: #555;
+  font-weight: 500;
+  text-align: center;
+  border-top: 1px dashed #99c;
+  border-bottom: 1px dashed #99c;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+/* ✅ فاصل نهاية الوحدة */
+tr.unit-separator td {
+  background: #e0f7fa;
+  color: #006064;
+  font-weight: bold;
+  text-align: center;
+  border-top: 2px solid #00acc1;
+  border-bottom: 2px solid #00acc1;
+  font-size: 1.05rem;
+  letter-spacing: 2px;
+}
+
+/* ميديا للشاشات الصغيرة */
 @media (max-width: 600px) {
   header {
     font-size: 1.2rem;
@@ -55,122 +124,182 @@ table {
   }
 }
 
+/* أنيميشن لطيف */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-      text-align: center;
-    }
-
-    th {
-      background-color: #f5f5f5;
-      color: #333;
-    }
-
-    tr:hover {
-      background-color: #f9f9f9;
-    }
-
-    img.icon {
-      width: 30px;
-      height: 30px;
-    }
-
-    .no-results {
-      text-align: center;
-      color: #777;
-      margin-top: 20px;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
   </style>
 </head>
 <body>
-
-  <header>
-    نتائج الأنشطة التفاعلية
-  </header>
+  <header>نتائج الأنشطة التفاعلية</header>
 
   <main>
-    <table id="results-table">
-      <thead>
-        <tr>
-          <th>الاسم</th>
-          <th>البريد</th>
-          <th>الدرس</th>
-          <th>النتيجة</th>
-          <th>شارة</th>
-          <th>الترتيب</th>
-        </tr>
-      </thead>
-      <tbody id="results-body">
-        <!-- النتائج ستظهر هنا -->
-      </tbody>
-    </table>
+    <!-- قسم بيئة ضغط الوقت -->
+    <section>
+      <h2>📘 نتائج بيئة ضغط الوقت</h2>
+      <table id="time-pressure-table">
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>البريد</th>
+            <th>الدرس</th>
+            <th>النتيجة</th>
+            <th>شارة</th>
+            <th>الترتيب</th>
+          </tr>
+        </thead>
+        <tbody id="time-pressure-body"></tbody>
+      </table>
+      <p class="no-results" id="no-time-results" style="display:none;">
+        لا توجد نتائج ضمن بيئة ضغط الوقت.
+      </p>
+    </section>
 
-    <p class="no-results" id="no-results" style="display:none;">
-      لا توجد نتائج مسجلة حاليًا.
-    </p>
+    <!-- قسم الأنشطة الأخرى -->
+    <section>
+      <h2>📙 نتائج الأنشطة الخاصة</h2>
+      <table id="other-activities-table">
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>البريد</th>
+            <th>الدرس</th>
+            <th>النتيجة</th>
+            <th>شارة</th>
+            <th>الترتيب</th>
+          </tr>
+        </thead>
+        <tbody id="other-activities-body"></tbody>
+      </table>
+      <p class="no-results" id="no-other-results" style="display:none;">
+        لا توجد نتائج ضمن الأنشطة الأخرى.
+      </p>
+    </section>
   </main>
 
   <script>
-    const supabaseUrl = 'https://duxdtpkxomkjoxnlzjgw.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eGR0cGt4b21ram94bmx6amd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MTYyMzIsImV4cCI6MjA2NzQ5MjIzMn0._MOyOhSQvvKrmEwAJGvibp79JXM9MlTJyEVnpvuTJL0';
+const supabaseUrl = 'https://duxdtpkxomkjoxnlzjgw.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eGR0cGt4b21ram94bmx6amd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MTYyMzIsImV4cCI6MjA2NzQ5MjIzMn0._MOyOhSQvvKrmEwAJGvibp79JXM9MlTJyEVnpvuTJL0';
+  const { createClient } = supabase;
+  const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-    const { createClient } = supabase;
-    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+ const timePressureActivities = [
+  "نشاط الدرس الأول - الوحدة الأولى",
+  "نشاط الدرس الثاني - الوحدة الأولى",
+  "نشاط الدرس الثالث - الوحدة الأولى",
+  "نشاط الدرس الأول - الوحدة الثانية",
+  "نشاط الدرس الثاني - الوحدة الثانية",
+  "نشاط الدرس الثالث - الوحدة الثانية",
+  "نشاط الدرس الأول - الوحدة الثالثة",
+  "نشاط الدرس الثاني - الوحدة الثالثة",
+  "نشاط الدرس الثالث - الوحدة الثالثة",
+  "نشاط الدرس الأول - الوحدة الرابعة",
+  "نشاط الدرس الثاني - الوحدة الرابعة",
+  "نشاط الدرس الثالث - الوحدة الرابعة"
+];
 
-    async function fetchResults() {
-      const { data, error } = await supabaseClient
-        .from('activities_results')
-        .select('*')
-        .order('score', { ascending: false });
+async function fetchResults() {
+  const { data, error } = await supabaseClient
+    .from('activities_results')
+    .select('*');
 
-      const resultsBody = document.getElementById('results-body');
-      const noResultsMsg = document.getElementById('no-results');
+  const timeBody = document.getElementById('time-pressure-body');
+  const otherBody = document.getElementById('other-activities-body');
+  const noTimeMsg = document.getElementById('no-time-results');
+  const noOtherMsg = document.getElementById('no-other-results');
 
-      if (error) {
-        console.error('حدث خطأ:', error.message);
-        resultsBody.innerHTML = '<tr><td colspan="6">⚠️ خطأ في تحميل النتائج</td></tr>';
-        return;
-      }
+  if (error) {
+    console.error('حدث خطأ:', error.message);
+    timeBody.innerHTML = '<tr><td colspan="6">⚠️ خطأ في تحميل النتائج</td></tr>';
+    otherBody.innerHTML = '<tr><td colspan="6">⚠️ خطأ في تحميل النتائج</td></tr>';
+    return;
+  }
 
-      if (!data || data.length === 0) {
-        noResultsMsg.style.display = 'block';
-        return;
-      }
+  if (!data || data.length === 0) {
+    noTimeMsg.style.display = 'block';
+    noOtherMsg.style.display = 'block';
+    return;
+  }
 
-      data.forEach(result => {
-        const row = document.createElement('tr');
-
-        let badge = '';
-        if (result.trophy) {
-          badge = `<img src="${result.trophy}" alt="كأس" class="icon">`;
-        } else if (result.gold_check) {
-          badge = `<img src="${result.gold_check}" alt="صح ذهبي" class="icon">`;
-        } else if (result.check_mark) {
-          badge = `<img src="${result.check_mark}" alt="صح" class="icon">`;
-        } else {
-          badge = '-';
-        }
-
-        row.innerHTML = `
-          <td>${result.name}</td>
-          <td>${result.email}</td>
-          <td>${result.lesson}</td>
-          <td>${result.score}</td>
-          <td>${badge}</td>
-          <td>${result.rank ?? '-'}</td>
-        `;
-
-        resultsBody.appendChild(row);
-      });
+  const createRow = (result) => {
+    const row = document.createElement('tr');
+    let badge = '-';
+    if (result.trophy) {
+      badge = `<img src="${result.trophy}" alt="كأس" class="icon">`;
+    } else if (result.gold_check) {
+      badge = `<img src="${result.gold_check}" alt="صح ذهبي" class="icon">`;
+    } else if (result.check_mark) {
+      badge = `<img src="${result.check_mark}" alt="صح" class="icon">`;
     }
 
-    fetchResults();
-  </script>
+    row.innerHTML = `
+      <td>${result.name}</td>
+      <td>${result.email}</td>
+      <td>${result.lesson}</td>
+      <td>${result.score}</td>
+      <td>${badge}</td>
+      <td>${result.rank ?? '-'}</td>
+    `;
+    return row;
+  };
+
+  const insertResultsGroupedByUnit = (results, orderList, container) => {
+    const units = [...new Set(orderList.map(lesson => {
+      const match = lesson.match(/الوحدة\s+\S+/);
+      return match ? match[0] : '';
+    }))];
+
+    units.forEach(unitName => {
+      const lessonsInUnit = orderList.filter(lesson => lesson.includes(unitName));
+
+      lessonsInUnit.forEach(lessonTitle => {
+        const lessonResults = results.filter(r => r.lesson === lessonTitle);
+
+        if (lessonResults.length > 0) {
+          lessonResults.forEach(r => container.appendChild(createRow(r)));
+
+          // فاصل نهاية الدرس
+          const lessonSeparator = document.createElement('tr');
+          lessonSeparator.className = "lesson-separator";
+          lessonSeparator.innerHTML = `<td colspan="6">---------- نهاية ${lessonTitle.split('-')[0].trim()} ----------</td>`;
+          container.appendChild(lessonSeparator);
+        }
+      });
+
+      // فاصل نهاية الوحدة بعد كل دروس الوحدة
+      const unitSeparator = document.createElement('tr');
+      unitSeparator.className = "unit-separator";
+      unitSeparator.innerHTML = `<td colspan="6">========== نهاية ${unitName} ==========</td>`;
+      container.appendChild(unitSeparator);
+    });
+  };
+
+  const timeResults = data.filter(r => timePressureActivities.includes(r.lesson));
+  const otherResults = data.filter(r => !timePressureActivities.includes(r.lesson));
+
+  // عرض بيئة ضغط الوقت
+  if (timeResults.length > 0) {
+    insertResultsGroupedByUnit(timeResults, timePressureActivities, timeBody);
+  } else {
+    noTimeMsg.style.display = 'block';
+  }
+
+  // ترتيب باقي الأنشطة بناءً على lesson name
+  if (otherResults.length > 0) {
+    const otherLessonsOrder = [...new Set(otherResults.map(r => r.lesson))].sort((a, b) => a.localeCompare(b));
+    insertResultsGroupedByUnit(otherResults, otherLessonsOrder, otherBody);
+  } else {
+    noOtherMsg.style.display = 'block';
+  }
+}
+
+fetchResults();
+
+</script>
+
 </body>
+
+
 </html>
